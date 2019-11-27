@@ -15,11 +15,14 @@
 </template>
 
 <script>
+    import axios from 'axios';
+
     export default {
         name: 'List',
         methods: {
             toggle: item => {
-                item.done = !item.done
+                axios.put("http://localhost:3000/users/" + item.userId + "/tasks/" + item.id, {done: !item.done})
+                    .then(() => item.done = !item.done);
             }
         },
         computed: {
