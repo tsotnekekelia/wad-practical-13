@@ -28,4 +28,22 @@ router.post('/1/tasks', function (req, res, next) {
    });
 });
 
+router.put('/:userId/tasks/:taskId', function (req, res, next) {
+
+    let taskId = req.params.taskId;
+    let userId = req.params.userId;
+    let done = req.body.done ? 1 : 0;
+    let sql = `UPDATE tasks SET done=? where userId=? AND id=?`;
+    db.run(sql, [done, userId, taskId], function (err) {
+        if (err) throw err;
+        sql = `SELECT * FROM tasks where id=? LIMIT 0,1`;
+        db.all(sql, [taskId], function (err2, rows) {
+            if (err2) throw err2;
+            if (rows.length) {
+                res.json(rows[0]);
+            }
+        })
+    });
+});
+
 module.exports = router;

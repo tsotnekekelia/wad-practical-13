@@ -1,6 +1,7 @@
 <template>
     <div id="app">
         <Header/>
+        <Users :users="users" :onChange="changeSelectedUser"/>
         <List :list="list"/>
         <Footer :add="addToList"/>
     </div>
@@ -10,33 +11,50 @@
     import List from './components/List.vue'
     import Header from './components/Header.vue'
     import Footer from './components/Footer.vue'
+    import Users from './components/Users.vue'
+    import User from './models/User';
     import axios from 'axios';
 
     export default {
         name: 'app',
         methods: {
             addToList: function (title) {
-                axios.post('http://localhost:3000/users/1/tasks', {title: title})
+                axios.post('http://localhost:3000/users/' + this.selectedUserId + '/tasks', {title: title})
                     .then(response => {
                         this.list.push(response.data);
                     })
+            },
+            fetchTasks: function () {
+                axios.get('http://localhost:3000/users/' + this.selectedUserId + '/tasks')
+                    .then((response) => {
+                        this.list = response.data;
+                    });
+            },
+            changeSelectedUser: function (id) {
+                this.selectedUserId = id;
+                this.fetchTasks();
             }
         },
         data: () => {
             return {
-                list: []
+                list: [],
+                users: [
+                    new User(1, 'First User'),
+                    new User(2, 'Second User'),
+                    new User(3, 'Third User'),
+                    new User(4, 'Forth User'),
+                ],
+                selectedUserId: 1,
             }
         },
         components: {
             List,
             Header,
-            Footer
+            Footer,
+            Users,
         },
         mounted: function () {
-            axios.get('http://localhost:3000/users/1/tasks')
-                .then((response) => {
-                    this.list = response.data;
-                });
+            this.fetchTasks();
         }
     }
 </script>
